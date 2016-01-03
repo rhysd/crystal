@@ -1680,6 +1680,25 @@ module Crystal
           if delimiter_state.kind == :regex
             options = consume_regex_options
           end
+          if delimiter_state.kind == :heredoc_indent && delimiter_state.indent > 0
+            indent = String.build do |builder|
+              delimiter_state.indent.times do
+                builder << ' '
+              end
+            end
+            pieces.map! do |p|
+              case p
+              when String
+                if p.starts_with? indent
+                  p.byte_slice(delimiter_state.indent)
+                else
+                  p
+                end
+              else
+                p
+              end
+            end
+          end
           token_end_location = token_end_location()
           next_token
           break
@@ -1689,7 +1708,7 @@ module Crystal
             raise "Unterminated command"
           when :regex
             raise "Unterminated regular expression"
-          when :heredoc
+          when :heredoc, :heredoc_indent
             raise "Unterminated heredoc"
           else
             raise "Unterminated string literal"

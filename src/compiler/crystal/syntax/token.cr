@@ -23,15 +23,19 @@ module Crystal
       property whitespace
     end
 
-    record DelimiterState, kind, nest, :end, open_count
+    record DelimiterState, kind, nest, :end, open_count, indent
 
     struct DelimiterState
       def self.default
-        DelimiterState.new(:string, '\0', '\0', 0)
+        DelimiterState.new(:string, '\0', '\0', 0, 0)
       end
 
       def with_open_count_delta(delta)
-        DelimiterState.new(@kind, @nest, @end, @open_count + delta)
+        DelimiterState.new(@kind, @nest, @end, @open_count + delta, @indent)
+      end
+
+      def with_indent(indent)
+        DelimiterState.new(@kind, @nest, @end, @open_count, indent)
       end
     end
 
